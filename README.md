@@ -1,2 +1,10 @@
-# jlpt-study
-JLPT N1-N5 Japanese Study
+# JLPT PASS
+
+N1~N5 학습용 JLPT 형식 4지선다 웹 학습 사이트입니다.
+
+- 각 등급별 어휘 500문제, 문법 300문제, 독해 300문제 (총 5,500문제)
+- N3/N4/N5 후리가나 지원
+- 10문제 단위 학습, 정답·오답 기록 및 오답노트
+- 아이디/비밀번호 로그인은 Cloudflare Worker + D1 설정 필요
+
+배포 방법은 `DEPLOY.md`를 참고하세요.

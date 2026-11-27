@@ -2,11 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="jlpt-api-url" content="https://jlpt-study-progress.jlpt-study-kimjaegeun.workers.dev/api/progress">
 <title>JLPT PASS — 일본어 합격 학습</title>
 <style>
 :root{--bg:#f5f7fb;--panel:#fff;--ink:#172033;--muted:#718096;--line:#e6eaf1;--blue:#3867e8;--blue2:#edf2ff;--green:#16845b;--red:#d94b55;--shadow:0 8px 28px #1d31500c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",system-ui,sans-serif}
-button,select{font:inherit}button{cursor:pointer;border:0}.app{max-width:1180px;margin:auto;padding:24px}
+button,select,input{font:inherit}button{cursor:pointer;border:0}.app{max-width:1180px;margin:auto;padding:24px}
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.brand{font-size:22px;font-weight:850;letter-spacing:-.7px}.brand span{color:var(--blue)}.sub{font-size:12px;color:var(--muted);margin-top:3px}
 .topright{display:flex;gap:10px;align-items:center}.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 13px;font-size:13px}
 .hero{background:linear-gradient(115deg,#1f3676,#426de8);color:white;border-radius:22px;padding:27px 30px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
@@ -23,36 +24,64 @@ select{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9
 .explain{display:none;margin-top:16px;padding:15px;border-radius:12px;background:#f6f8fc;font-size:13px;line-height:1.7}.explain.show{display:block}.explain strong{color:var(--green)}
 .sidebox{margin-bottom:14px}.sidebox h3{font-size:14px;margin:0 0 12px}.levelgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.level{padding:9px 0;border-radius:9px;background:#f2f4f8;color:#536079;font-weight:750}.level.active{background:var(--blue);color:#fff}.sideitem{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f2f6;font-size:13px}.sideitem:last-child{border:0}
 .readingtext{line-height:2;background:#f8f9fc;border-radius:13px;padding:18px;font-size:15px;margin:16px 0}.grammarline{font-size:22px;text-align:center;font-weight:750;margin:25px 0}.empty{padding:35px;text-align:center;color:var(--muted)}
+.round-result{padding:22px 8px;text-align:center}.round-result h3{font-size:22px;margin:8px 0}.round-result .score{font-size:38px;font-weight:850;color:var(--blue);margin:12px}.choice-notes{margin-top:16px;padding:14px;background:#f8f9fc;border-radius:12px;font-size:13px;line-height:1.8}.choice-notes ul{padding-left:20px;margin:8px 0 0}ruby{ruby-position:over}rt{font-size:.48em;color:#6b7890;font-weight:500}.round-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.round-actions button{flex:1}
 footer{text-align:center;color:#9aa4b5;font-size:11px;margin:22px 0}
-@media(max-width:800px){.app{padding:14px}.layout{grid-template-columns:1fr}.hero{padding:22px;display:block}.hero .tag{display:inline-block;margin-top:16px}.stats{grid-template-columns:repeat(3,1fr)}header{align-items:flex-start}.topright .pill:first-child{display:none}}
+@media(max-width:800px){.app{padding:14px}.layout{grid-template-columns:1fr}.hero{padding:22px;display:block}.hero .tag{display:inline-block;margin-top:16px}.stats{grid-template-columns:repeat(3,1fr)}header{align-items:flex-start}}
+
+.profile{margin-top:18px;padding:14px 18px}.profile form{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.profile input[type=text],.profile input[type=password]{color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:min(100%,210px)}
+.profile select{padding:9px 11px}.profile .logout{background:#f0f3f8;color:#46536b;padding:10px 14px;border-radius:11px;font-weight:750}
+.profile .primary{flex:initial;padding:10px 14px}.profile p{margin:9px 0 0;font-size:14px}
+.profile__import{margin-top:10px;font-size:14px}.profile__import summary{cursor:pointer}
+.profile__import button,.profile__import input{margin-top:10px}.profile button:disabled{opacity:.45;cursor:not-allowed}
+[hidden]{display:none!important}
 </style>
 </head>
 <body><div class="app">
-<header><div><div class="brand">JLPT <span>PASS</span></div><div class="sub">일본어 능력시험 합격 학습 플랫폼</div></div><div class="topright"><div class="pill">🎯 목표 등급 <b id="goalLabel">N2</b></div><div class="pill">🔥 연속 학습 <b id="streak">1일</b></div></div></header>
+<header><div><div class="brand">JLPT <span>PASS</span></div><div class="sub">일본어 능력시험 합격 학습 플랫폼</div></div><div class="topright"><div class="pill">🎯 목표 등급 <b id="goalLabel">N2</b></div></div></header>
 <section class="hero"><div><h1>오늘도 한 단계 합격에 가까워지기</h1><p>N5부터 N1까지, 어휘 · 문법 · 독해를 체계적으로 학습하세요.</p></div><div class="tag">현재 집중 등급　<b>N2</b></div></section>
-<nav class="tabs"><button class="tab active" data-tab="vocab">📚 어휘</button><button class="tab" data-tab="grammar">✍️ 문법</button><button class="tab" data-tab="reading">📖 독해</button><button class="tab" data-tab="wrong">↻ 오답 노트</button></nav>
-<div class="layout"><main class="panel">
-<div class="sectionhead"><div><h2 id="mainTitle">어휘 5지선다</h2><div class="muted small" id="mainDesc">단어의 의미를 정확하게 골라보세요.</div></div><select id="mode"><option value="all">전체 문제</option><option value="new">새 문제 우선</option><option value="wrong">오답 복습</option></select></div>
+<div class="panel profile">
+<form id="profileForm" autocomplete="on">
+<label for="username">아이디</label>
+<input id="username" type="text" minlength="3" maxlength="24" autocomplete="username" required placeholder="3~24자">
+<label for="password">비밀번호</label>
+<input id="password" type="password" minlength="8" maxlength="128" autocomplete="current-password" required placeholder="8자 이상">
+<select id="accountAction" aria-label="계정 작업"><option value="login">로그인</option><option value="register">회원가입</option></select>
+<button class="primary" id="loadProfile">로그인</button>
+<button class="logout" id="logout" type="button" hidden>로그아웃</button>
+</form>
+<p class="muted" id="profileStatus" role="status">아이디와 비밀번호로 로그인하거나 새 계정을 만들어 주세요. 비밀번호는 서버에서 안전하게 해시 처리됩니다.</p>
+<details id="legacyImport" class="profile__import" hidden>
+<summary>이전 브라우저 기록 가져오기</summary>
+<button class="secondary" id="importLocal" type="button" hidden>이 브라우저의 기록 가져오기</button>
+<label for="importFile">기록 파일 (JSON)</label>
+<input id="importFile" type="file" accept=".json,application/json">
+</details>
+</div>
+<nav class="tabs" id="studyTabs" inert><button class="tab active" data-tab="vocab">📚 어휘</button><button class="tab" data-tab="grammar">✍️ 문법</button><button class="tab" data-tab="reading">📖 독해</button><button class="tab" data-tab="wrong">↻ 오답 노트</button></nav>
+<div class="layout" id="study" inert><main class="panel">
+<div class="sectionhead"><div><h2 id="mainTitle">어휘 4지선다</h2><div class="muted small" id="mainDesc">단어의 의미를 정확하게 골라보세요.</div></div><select id="mode"><option value="new">미풀이 랜덤</option><option value="wrong">오답 복습</option></select></div>
 <div class="stats"><div class="stat"><span>오늘 푼 문제</span><b id="todayCount">0</b></div><div class="stat"><span>정답률</span><b id="accuracy">-</b></div><div class="stat"><span>누적 오답</span><b id="wrongCount">0</b></div></div>
 <div class="sectionhead"><span class="small muted" id="qCount">문제 1</span><span class="small muted" id="levelLabel">N2 어휘</span></div><div class="progress"><i id="bar"></i></div>
 <div id="quiz"></div>
 </main><aside>
 <div class="panel sidebox"><h3>학습 등급 선택</h3><div class="levelgrid" id="levels"></div><p class="small muted" style="margin:11px 0 0">전체 등급을 지원하며 N2가 기본 선택입니다.</p></div>
 <div class="panel sidebox"><h3>나의 학습 현황</h3><div class="sideitem"><span>누적 풀이</span><b id="totalSolved">0문제</b></div><div class="sideitem"><span>정답</span><b id="totalCorrect">0문제</b></div><div class="sideitem"><span>오답 노트</span><b id="wrongTotal">0문제</b></div><div class="sideitem"><span>선택 등급</span><b id="currentLevel">N2</b></div></div>
-<div class="panel sidebox"><h3>문제은행 안내</h3><p class="small muted" style="line-height:1.8;margin:0">문항은 JLPT 공식 공개 자료의 문제 유형과 평가 목적을 참고해 새로 작성한 연습문제입니다. 실제 기출 원문을 복제하지 않으며, 등급별·유형별 문제은행을 계속 확장할 수 있습니다.</p></div>
+<div class="panel sidebox"><h3>문제은행</h3><p class="small muted" id="bankSummary">어휘 500 · 문법 300 · 독해 300</p><h3>문제은행 안내</h3><p class="small muted" style="line-height:1.8;margin:0">어휘 500문·문법 300문·독해 300문으로 구성했습니다. 공개된 JLPT 유형과 재구성 어휘 자료를 참고해 새로 만든 연습문제이며, 공식 기출 원문이나 최근 10년간의 검증된 출제 빈도 순위는 아닙니다.</p></div>
 </aside></div>
-<footer>JLPT PASS · N2 집중 학습 · 학습 기록은 현재 사용 중인 브라우저에 저장됩니다.</footer></div>
+<footer>JLPT PASS · N1~N5 · 계정별 학습 기록 저장</footer></div>
+<script src="./question-bank.js"></script>
 <script>
 const db={
 N5:[
 {w:"学校",r:"がっこう",q:"학교",a:["학교","회사","도서관","병원","역"],c:0,e:"学校（がっこう）는 학교입니다.",kind:"한자 읽기",prompt:"밑줄 친 단어의 읽기로 가장 적절한 것을 고르세요.",opts:["がっこう","がくこう","がっこ","がっきょう","がくこ"]},
 {w:"毎日",r:"まいにち",q:"매일",a:["매주","매달","매일","매년","매번"],c:2,e:"毎日（まいにち）는 매일이라는 뜻입니다."},
 {w:"大切",r:"たいせつ",q:"소중하다",a:["위험하다","소중하다","간단하다","시끄럽다","불편하다"],c:1,e:"大切（たいせつ）는 소중하다, 중요하다는 의미입니다."},
-{w:"友達",r:"ともだち",q:"친구",a:["가족","선생님","친구","이웃","손님"],c:2,e:"友達（ともだち）는 친구입니다.",kind:"한자 읽기",prompt:"밑줄 친 단어의 읽기로 가장 적절한 것을 고르세요.",opts:["ともたち","ともだち","どもだち","ともだっち","ともだじ"]}],
+{w:"友達",r:"ともだち",q:"친구",a:["가족","선생님","친구","이웃","손님"],c:2,e:"友達（ともだち）는 친구입니다.",kind:"한자 읽기",prompt:"밑줄 친 단어의 읽기로 가장 적절한 것을 고르세요.",opts:["ともたち","ともだち","どもだち","ともだっち","ともだじ"],optsC:1}],
 N4:[
 {w:"準備",r:"じゅんび",q:"준비",a:["정리","준비","연습","약속","설명"],c:1,e:"準備（じゅんび）는 준비입니다."},
 {w:"比べる",r:"くらべる",q:"비교하다",a:["바꾸다","조사하다","비교하다","계속하다","결정하다"],c:2,e:"比べる（くらべる）는 비교하다입니다."},
-{w:"経験",r:"けいけん",q:"경험",a:["경험","계획","관계","기회","실패"],c:0,e:"経験（けいけん）는 경험입니다.",kind:"한자 읽기",prompt:"밑줄 친 단어의 읽기로 가장 적절한 것을 고르세요.",opts:["けいげん","けいけん","けんけい","けいげい","けんげん"]}],
+{w:"経験",r:"けいけん",q:"경험",a:["경험","계획","관계","기회","실패"],c:0,e:"経験（けいけん）는 경험입니다.",kind:"한자 읽기",prompt:"밑줄 친 단어의 읽기로 가장 적절한 것을 고르세요.",opts:["けいげん","けいけん","けんけい","けいげい","けんげん"],optsC:1}],
 N3:[
 {w:"影響",r:"えいきょう",q:"영향",a:["인상","영향","상황","원인","결과"],c:1,e:"影響（えいきょう）는 영향입니다."},
 {w:"確認",r:"かくにん",q:"확인",a:["확인","허가","취소","신청","경험"],c:0,e:"確認（かくにん）는 확인입니다."},
@@ -103,20 +132,410 @@ N2:[
 ],
 N1:[{text:"情報が容易に手に入る時代において、知識を多く蓄えることの価値は相対的に低下したと言えるかもしれない。しかし、情報を持っていることと、それを状況に応じて意味づけ、判断に結びつけることとは別である。むしろ情報が氾濫する現代だからこそ、何を選び、何を捨てるかという判断力が問われている。",q:"筆者によると、現代に特に必要とされる能力は何か。",a:["情報をすべて記憶する能力","情報を速く検索する能力","情報を選択し判断に生かす能力","専門知識を避ける能力","情報を他人に伝えない能力"],c:2,e:"정보가 넘치는 시대일수록 무엇을 선택하고 버릴지 판단하는 능력이 중요하다고 말합니다."}]
 };
-let level="N2",tab="vocab",idx=0,selected=-1,checked=false,questions=[],today=0,solved=0,correct=0,wrong=[];
-try{let s=JSON.parse(localStorage.getItem("jlptpass")||"{}");today=s.today||0;solved=s.solved||0;correct=s.correct||0;wrong=s.wrong||[]}catch(e){}
-function save(){localStorage.setItem("jlptpass",JSON.stringify({today,solved,correct,wrong}))}
-function makeQuestions(){if(tab==="vocab")return (db[level]||[]).map(x=>({...x,a:x.opts||x.a,c:x.opts?0:x.c,type:"vocab"}));if(tab==="grammar")return (grammar[level]||[]).map(x=>({...x,w:"문법",r:"",q:x.s,type:"grammar"}));if(tab==="reading"){return (reading[level]||[]).map(x=>({...x,w:"독해 지문",r:"",type:"reading"}))}return wrong.filter(x=>x.level===level)}
-function render(){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));document.getElementById("mainTitle").textContent={vocab:"어휘 5지선다",grammar:"문법 문장 풀이",reading:"독해 지문 풀이",wrong:"오답 노트"}[tab];document.getElementById("mainDesc").textContent={vocab:"JLPT 어휘 문항 유형을 반영한 5지선다 문제입니다.",grammar:"문법 형식 판단과 문장 구성 문제를 풀어보세요.",reading:"단문·중문 독해의 핵심 내용과 세부 정보를 파악하세요.",wrong:"틀린 문제를 다시 풀어보세요."}[tab];document.getElementById("levelLabel").textContent=level+" "+({vocab:"어휘",grammar:"문법",reading:"독해",wrong:"오답"}[tab]);questions=makeQuestions();idx=Math.min(idx,Math.max(0,questions.length-1));selected=-1;checked=false;draw()}
-function draw(){document.getElementById("todayCount").textContent=today;document.getElementById("accuracy").textContent=solved?Math.round(correct/solved*100)+"%":"-";document.getElementById("wrongCount").textContent=wrong.length;document.getElementById("totalSolved").textContent=solved+"문제";document.getElementById("totalCorrect").textContent=correct+"문제";document.getElementById("wrongTotal").textContent=wrong.length+"문제";document.getElementById("currentLevel").textContent=level;document.getElementById("qCount").textContent=questions.length?`문제 ${idx+1} / ${questions.length}`:"문제 없음";document.getElementById("bar").style.width=questions.length?((idx+1)/questions.length*100)+"%":"0%";
-let root=document.getElementById("quiz");if(!questions.length){root.innerHTML='<div class="empty">이 등급의 문제 또는 오답이 아직 없습니다.<br><br>다른 학습 메뉴나 등급을 선택해 주세요.</div>';return}
-let q=questions[idx];let title=q.type==="vocab"?`<div class="small muted" style="text-align:center">${q.kind||"어휘 · 문맥 규정"}</div><div class="word">${q.display||q.w}</div><div class="reading">${q.r||""}</div><div class="question" style="text-align:center">${q.prompt||"다음 단어의 의미로 가장 적절한 것을 고르세요."}</div>`:q.type==="grammar"?`<div class="grammarline">${q.s.replace("（　）","<u>（　）</u>")}</div><div class="question">빈칸에 들어갈 가장 적절한 표현을 고르세요.</div>`:`<div class="question">다음 글을 읽고 질문에 답하세요.</div><div class="readingtext">${q.text}</div><b>${q.q}</b>`;
-root.innerHTML=title+`<div class="choices">${q.a.map((a,i)=>`<button class="choice ${selected===i?"selected":""} ${checked&&i===q.c?"correct":""} ${checked&&selected===i&&i!==q.c?"wrong":""}" data-i="${i}" ${checked?"disabled":""}><span class="num">${i+1}</span><span>${a}</span></button>`).join("")}</div><div class="explain ${checked?"show":""}">${checked?(selected===q.c?'<strong>정답입니다!</strong>':'<strong style="color:var(--red)">오답입니다. 정답: '+q.a[q.c]+'</strong>')+'<br>'+q.e:''}</div><div class="actions">${checked?'<button class="secondary" id="again">다시 풀기</button><button class="primary" id="next">다음 문제 →</button>':'<button class="primary" id="submit" '+(selected<0?'disabled':'')+'>정답 확인</button>'}</div>`;
-root.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(!checked){selected=+b.dataset.i;draw()}});let sub=document.getElementById("submit");if(sub)sub.onclick=()=>{if(selected<0)return;checked=true;solved++;today++;if(selected===q.c)correct++;else{if(!wrong.some(x=>x.w===q.w&&x.level===level&&x.type===q.type))wrong.push({...q,level});}save();draw()};let next=document.getElementById("next");if(next)next.onclick=()=>{idx=(idx+1)%questions.length;selected=-1;checked=false;draw()};let again=document.getElementById("again");if(again)again.onclick=()=>{selected=-1;checked=false;draw()};
+const $ = id => document.getElementById(id);
+const levels = ["N5", "N4", "N3", "N2", "N1"];
+const bank = { vocab: { ...db }, grammar: { ...grammar }, reading: { ...reading } };
+for (const type of Object.keys(bank)) {
+  for (const level of levels) bank[type][level] = [...(bank[type][level] || []), ...(window.JLPT_EXTRA_BANK?.[type]?.[level] || [])];
 }
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;idx=0;render()});
-document.getElementById("levels").innerHTML=["N5","N4","N3","N2","N1"].map(x=>`<button class="level ${x===level?"active":""}" data-l="${x}">${x}</button>`).join("");
-document.querySelectorAll(".level").forEach(b=>b.onclick=()=>{level=b.dataset.l;document.querySelectorAll(".level").forEach(x=>x.classList.toggle("active",x===b));idx=0;render()});
-document.getElementById("mode").onchange=e=>{if(e.target.value==="wrong")tab="wrong";else if(tab==="wrong")tab="vocab";idx=0;render()};
+const bankCounts = Object.fromEntries(Object.entries(bank).map(([type, groups]) => [type, Object.values(groups).reduce((sum, list) => sum + list.length, 0)]));
+const furiganaEntries = Object.entries(window.JLPT_FURIGANA_MAP || {}).sort((a,b) => b[0].length - a[0].length);
+const grammarGlossary = {
+  "を":"목적어를 나타내는 조사", "に":"시간·도착점·대상을 나타내는 조사", "が":"주어·대상을 나타내는 조사", "で":"동작 장소·수단을 나타내는 조사", "へ":"방향을 나타내는 조사", "と":"함께함·인용을 나타내는 조사", "から":"출발점·이유", "まで":"도달점·범위의 끝", "は":"문장의 주제를 나타내는 조사", "も":"또한·역시", "ませんか":"상대에게 함께 하자고 권유하는 표현", "たいです":"말하는 사람의 희망·욕구",
+  "のに":"예상과 다른 결과를 나타내는 역접", "ので":"이유·원인을 나타내는 표현", "ために":"목적 또는 원인을 나타내는 표현", "ように":"목표·상태·방식을 나타내는 표현", "ばかりに":"그 일 때문에 좋지 않은 결과가 생김", "ときは":"어떤 일이 일어나는 때", "ところで":"어떤 일을 하려는 순간·상황", "あいだに":"어떤 기간의 안쪽에서", "うちに":"상태가 변하기 전에·동안에", "さえ":"최소한의 예를 들어 강조", "ほど":"정도·한계를 나타내는 표현", "だけ":"범위를 한정하는 표현", "しか":"뒤에 부정 표현이 오는 한정", "まで":"범위·한계를 나타내는 표현", "そう":"모양·전언을 나타내는 표현", "こと":"일·사실을 명사처럼 나타냄", "もの":"사물·일반적인 일을 나타냄",
+  "だけあって":"기대에 걸맞게 역시", "一方で":"한편으로는·대조적으로", "ことから":"어떤 사실을 근거·이유로 삼음", "末に":"여러 과정을 거친 끝에", "に限って":"특정한 경우·대상을 한정", "にあたって":"어떤 일을 시작하거나 실행하는 시점에", "に反して":"기대·예상·규칙과 반대로", "に沿って":"기준·방침·흐름에 맞추어", "に限らず":"그것뿐 아니라 범위를 넓혀", "を問わず":"조건·차이를 따지지 않고", "ものの":"그렇기는 하지만", "にしては":"기준에 비해 예상 밖으로", "どころか":"그 정도가 아니라 오히려", "に限り":"범위를 특정하여 한정", "あげく":"좋지 않은 결과에 이른 끝에", "最中に":"한창 진행 중인 때에", "以来":"그때 이후로 계속", "次第":"어떤 일이 끝나는 즉시·상황에 따라", "まま":"상태를 바꾸지 않고 그대로", "うえで":"어떤 일을 한 다음·그 점을 고려하여", "限り":"조건·범위를 한정",
+  "なしには":"그것이 없으면 성립하지 않음", "に先立ち":"어떤 일보다 앞서", "を皮切りに":"그 일을 시작으로 연이어", "に即して":"실제 상황·기준에 맞추어", "と相まって":"둘 이상의 요소가 함께 작용하여", "ものの":"~이기는 하지만", "からには":"일단 그렇게 된 이상", "といえども":"그렇다고 해도", "にひきかえ":"그것과 비교하면 대조적으로"
+};
+const questionsById = new Map();
+for (const [type, groups] of Object.entries(bank)) {
+  for (const [level, entries] of Object.entries(groups)) {
+    groups[level] = entries.map((entry, index) => {
+      const source = [...(entry.opts || entry.a)];
+      const keptIndexes = source.map((_, optionIndex) => optionIndex);
+      let correct = entry.opts ? (Number.isInteger(entry.optsC) ? entry.optsC : 0) : entry.c;
+      while (source.length > 4) {
+        const removeAt = correct === source.length - 1 ? source.length - 2 : source.length - 1;
+        source.splice(removeAt, 1);
+        keptIndexes.splice(removeAt, 1);
+        if (removeAt < correct) correct--;
+      }
+      const choiceMeanings = Array.isArray(entry.choiceMeanings)
+        ? keptIndexes.map(optionIndex => entry.choiceMeanings[optionIndex] || "")
+        : type === "grammar"
+          ? keptIndexes.map(optionIndex => `${source[optionIndex]}: ${grammarGlossary[source[optionIndex]] || "문맥에 따라 쓰임이 달라지는 문법 표현"}`)
+          : undefined;
+      const question = { ...entry, type, level, id: `${level}:${type}:${index}`, a: source, c: correct, choiceMeanings };
+      questionsById.set(question.id, question);
+      return question;
+    });
+  }
+}
+
+const studyDate = () => new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
+}).format(new Date());
+const initialState = () => ({
+  level: "N2", tab: "vocab", mode: "new", idx: -1, selected: -1, checked: false,
+  today: 0, day: studyDate(), solved: 0, correct: 0, wrong: [], solvedIds: [], optionOrder: [0,1,2,3], roundCount: 0, roundCorrect: 0, roundWrongIds: [], roundSeenIds: [], roundTarget: 10,
+});
+let state = initialState();
+let username = "", revision = 0, busy = false, questions = [], sessionToken = localStorage.getItem("jlptpass_session") || "";
+
+function makeQuestions({ tab, level, wrong }) {
+  if (tab !== "wrong") return bank[tab][level] || [];
+  return wrong.map(id => questionsById.get(id)).filter(question => question?.level === level);
+}
+
+function makeOptionOrder(question, poolIndex, tab, roundCount = state.roundCount || 0) {
+  if (!question) return [0,1,2,3];
+  const rest = [0,1,2,3].filter(index => index !== question.c);
+  for (let i = rest.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rest[i], rest[j]] = [rest[j], rest[i]]; }
+  // 정규 학습은 회차 진행 순서에 따라 1~4번을 3/3/2/2개로 균등 배치합니다.
+  // 오답노트는 매번 정답 위치까지 무작위로 다시 섞습니다.
+  const target = tab === "wrong" ? Math.floor(Math.random() * 4) : ((roundCount % 4) + 4) % 4;
+  const order = [];
+  let cursor = 0;
+  for (let i = 0; i < 4; i++) order.push(i === target ? question.c : rest[cursor++]);
+  return order;
+}
+function validOrder(order) { return Array.isArray(order) && order.length === 4 && new Set(order).size === 4 && order.every(x => Number.isInteger(x) && x >= 0 && x < 4); }
+
+function randomIndex(profile, previousIndex = -1) {
+  const pool = makeQuestions(profile);
+  const solvedIds = new Set(profile.solvedIds);
+  const candidates = pool.flatMap((question, index) =>
+    profile.tab === "wrong" ? (!profile.roundSeenIds?.includes(question.id) ? [index] : []) : (!solvedIds.has(question.id) ? [index] : []));
+  const remaining = candidates.length > 1 ? candidates.filter(index => index !== previousIndex) : candidates;
+  return remaining.length ? remaining[Math.floor(Math.random() * remaining.length)] : -1;
+}
+
+function restoreProfile(saved) {
+  const profile = onCurrentDay(saved || initialState());
+  profile.mode = profile.tab === "wrong" ? "wrong" : "new";
+  profile.roundCount = Number.isInteger(profile.roundCount) ? Math.max(0, Math.min(10, profile.roundCount)) : 0;
+  profile.roundCorrect = Number.isInteger(profile.roundCorrect) ? profile.roundCorrect : 0;
+  profile.roundWrongIds = Array.isArray(profile.roundWrongIds) ? profile.roundWrongIds : [];
+  profile.roundSeenIds = Array.isArray(profile.roundSeenIds) ? profile.roundSeenIds : [];
+  profile.roundTarget = Number.isInteger(profile.roundTarget) && profile.roundTarget > 0 ? Math.min(10, profile.roundTarget) : 10;
+  profile.roundDone = Boolean(profile.roundDone);
+  const question = makeQuestions(profile)[profile.idx];
+  if (!Array.isArray(profile.solvedIds)) {
+    profile.solvedIds = [...new Set([
+      ...profile.wrong,
+      ...(profile.checked && question ? [question.id] : []),
+    ])];
+    if (!profile.checked) profile.idx = -1;
+  }
+  if (!question || profile.idx === -1 ||
+      (!profile.checked && profile.tab !== "wrong" && profile.solvedIds.includes(question.id))) {
+    profile.idx = randomIndex(profile);
+    profile.selected = -1;
+    profile.checked = false;
+  }
+  if (!validOrder(profile.optionOrder)) profile.optionOrder = makeOptionOrder(makeQuestions(profile)[profile.idx], profile.idx, profile.tab, profile.roundCount);
+  return profile;
+}
+
+function onCurrentDay(saved) {
+  const day = studyDate();
+  return saved.day === day ? saved : { ...saved, day, today: 0 };
+}
+
+function setBusy(value) {
+  busy = value;
+  $("loadProfile").disabled = value;
+  $("username").disabled = value || Boolean(username);
+  $("password").disabled = value || Boolean(username);
+  $("accountAction").disabled = value;
+  $("importFile").disabled = value;
+  $("importLocal").disabled = value;
+  $("study").inert = value || !username;
+  $("studyTabs").inert = value || !username;
+}
+function report(message) { $("profileStatus").textContent = message; }
+function apiBase() {
+  const endpoint = document.querySelector('meta[name="jlpt-api-url"]').content.trim();
+  if (!endpoint) throw new Error("학습기록 API 주소가 설정되지 않았어요.");
+  return endpoint.replace(/\/api\/progress$/, "");
+}
+async function api(path, options = {}) {
+  let response;
+  try {
+    response = await fetch(apiBase() + path, {
+      ...options,
+      headers: { ...(options.headers || {}), ...(sessionToken ? { Authorization: "Bearer " + sessionToken } : {}) },
+    });
+  } catch { throw new Error("학습기록 서버에 연결하지 못했어요."); }
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "요청을 처리하지 못했어요.");
+  return result;
+}
+async function loadProgress() { return api("/api/progress"); }
+function setAuthenticated(name, token) {
+  username = name; sessionToken = token;
+  $("username").disabled = true;
+  localStorage.setItem("jlptpass_session", token);
+  localStorage.setItem("jlptpass_username", name);
+  $("logout").hidden = false;
+  $("accountAction").hidden = true;
+  $("password").value = "";
+  $("password").hidden = true;
+  $("password").previousElementSibling.hidden = true;
+  $("accountAction").hidden = true;
+  $("loadProfile").hidden = true;
+}
+async function authenticate(action, name, password) {
+  const result = await api("/api/" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: name, password }) });
+  sessionToken = result.token;
+  let record;
+  try { record = await loadProgress(); }
+  catch (error) { sessionToken = ""; throw error; }
+  setAuthenticated(result.username, result.token);
+  revision = record.revision;
+  state = restoreProfile(record.state);
+  $("username").value = username;
+  $("legacyImport").hidden = revision !== 0;
+  $("importLocal").hidden = !localLegacyRecord();
+  report(revision ? username + "님의 학습 기록을 불러왔어요." : username + "님, 계정이 준비됐어요. 학습을 시작해 보세요.");
+  render();
+}
+$("profileForm").onsubmit = async event => {
+  event.preventDefault();
+  const name = $("username").value.trim().normalize("NFC");
+  const password = $("password").value;
+  if (!name || !password || busy) return;
+  const action = $("accountAction").value;
+  setBusy(true); report(action === "register" ? "계정을 만드는 중이에요." : "로그인하는 중이에요.");
+  try { await authenticate(action, name, password); }
+  catch (error) { report(error.message || "인증에 실패했어요."); }
+  finally { setBusy(false); }
+};
+$("accountAction").onchange = () => {
+  const register = $("accountAction").value === "register";
+  $("loadProfile").textContent = register ? "회원가입" : "로그인";
+  $("password").autocomplete = register ? "new-password" : "current-password";
+};
+$("logout").onclick = async () => {
+  if (busy) return;
+  setBusy(true);
+  try { await api("/api/logout", { method: "POST" }); } catch {}
+  sessionToken = ""; username = ""; revision = 0;
+  localStorage.removeItem("jlptpass_session"); localStorage.removeItem("jlptpass_username");
+  $("logout").hidden = true; $("password").hidden = false; $("password").previousElementSibling.hidden = false;
+  $("accountAction").hidden = false; $("accountAction").value = "login"; $("loadProfile").hidden = false; $("loadProfile").textContent = "로그인";
+  $("password").autocomplete = "current-password";
+  $("username").value = ""; $("username").disabled = false; state = initialState();
+  report("로그아웃했어요. 다시 로그인해 주세요."); render(); setBusy(false);
+};
+async function resumeSession() {
+  if (!sessionToken) return;
+  setBusy(true); report("로그인 상태를 확인하고 있어요.");
+  try {
+    const record = await loadProgress();
+    username = localStorage.getItem("jlptpass_username") || "회원";
+    revision = record.revision; state = restoreProfile(record.state);
+    $("username").value = username; setAuthenticated(username, sessionToken);
+    report(username + "님, 다시 오신 것을 환영해요."); render();
+  } catch {
+    sessionToken = ""; localStorage.removeItem("jlptpass_session"); localStorage.removeItem("jlptpass_username");
+    report("로그인 시간이 만료됐어요. 다시 로그인해 주세요.");
+  } finally { setBusy(false); }
+}
+
+async function save(next) {
+  if (busy || !username) return;
+  setBusy(true);
+  report(username + "님의 기록을 저장하는 중이에요.");
+  try {
+    const record = await api("/api/progress", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ revision, state: next }),
+    });
+    revision = record.revision;
+    state = next.idx === -1 ? restoreProfile(next) : next;
+    $("legacyImport").hidden = true;
+    report(username + "님의 학습 기록이 저장됐어요.");
+    render();
+  } catch (error) {
+    report(error.message || "저장에 실패했어요. 같은 동작을 다시 시도해 주세요.");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function localLegacyRecord() {
+  try {
+    return JSON.parse(localStorage.getItem("jlptpass"));
+  } catch {
+    return null;
+  }
+}
+
+function importLegacy(record) {
+  if (revision || !username || busy) return;
+  if (!record || !Number.isSafeInteger(record.solved) ||
+      !Number.isSafeInteger(record.correct) || !Array.isArray(record.wrong) ||
+      record.correct < 0 || record.solved < record.correct || record.solved > 1_000_000_000) {
+    report("이전 JLPT PASS에서 내보낸 기록 파일을 선택해 주세요.");
+    return;
+  }
+
+  const wrong = new Set();
+  for (const original of record.wrong) {
+    if (!original || !levels.includes(original.level) ||
+        !["vocab", "grammar", "reading"].includes(original.type)) continue;
+    const question = (bank[original.type]?.[original.level] || []).find(candidate => {
+      if (candidate.type === "grammar") return candidate.s === original.s;
+      if (candidate.type === "reading") return candidate.text === original.text && candidate.q === original.q;
+      return candidate.w === original.w && candidate.q === original.q;
+    });
+    if (question) wrong.add(question.id);
+  }
+  save({
+    ...initialState(), solved: record.solved, correct: record.correct, wrong: [...wrong], solvedIds: [...wrong],
+    today: Number.isSafeInteger(record.today) && record.today >= 0 && record.today <= record.solved ? record.today : 0,
+  });
+}
+
+$("importLocal").onclick = () => importLegacy(localLegacyRecord());
+$("importFile").onchange = async event => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file || busy) return;
+  const destination = username;
+  try {
+    if (file.size > 1_000_000) throw new Error();
+    const record = JSON.parse(await file.text());
+    if (username === destination) importLegacy(record);
+  } catch {
+    report("올바른 JSON 학습 기록 파일을 선택해 주세요.");
+  }
+};
+
+function changePosition(changes, reviewAgain = false) {
+  const current = onCurrentDay(state);
+  const next = { ...current, ...changes, selected: -1, checked: false, roundDone: false };
+  next.mode = next.tab === "wrong" ? "wrong" : "new";
+  const samePool = current.level === next.level && current.tab === next.tab;
+  if (!samePool) {
+    next.roundCount = 0; next.roundCorrect = 0; next.roundWrongIds = []; next.roundSeenIds = [];
+    next.roundTarget = next.tab === "wrong" ? Math.min(10, makeQuestions(next).length) : 10;
+  }
+  if (reviewAgain) next.idx = current.idx;
+  else next.idx = randomIndex(next, samePool ? current.idx : -1);
+  const q = makeQuestions(next)[next.idx];
+  next.optionOrder = makeOptionOrder(q, next.idx, next.tab, next.roundCount);
+  save(next);
+}
+
+function submitAnswer(question) {
+  if (state.selected < 0 || state.checked) return;
+  const current = onCurrentDay(state);
+  const chosenOriginal = current.optionOrder[current.selected];
+  const isCorrect = chosenOriginal === question.c;
+  const wrong = isCorrect || current.wrong.includes(question.id) ? current.wrong : [...current.wrong, question.id];
+  const roundCount = (current.roundCount || 0) + 1;
+  const roundWrongIds = isCorrect ? current.roundWrongIds : [...current.roundWrongIds, question.id];
+  const roundSeenIds = [...(current.roundSeenIds || []), question.id];
+  save({
+    ...current, solvedIds: [...new Set([...current.solvedIds, question.id])], checked: true,
+    today: current.today + 1, solved: current.solved + 1, correct: current.correct + Number(isCorrect), wrong,
+    roundCount, roundCorrect: (current.roundCorrect || 0) + Number(isCorrect), roundWrongIds, roundSeenIds,
+    roundDone: false,
+  });
+}
+
+function renderJapanese(text, level) {
+  if (!["N3", "N4", "N5"].includes(level) || typeof text !== "string") return text;
+  let result = text;
+  for (const [word, reading] of furiganaEntries) result = result.split(word).join(`<ruby>${word}<rt>${reading}</rt></ruby>`);
+  return result;
+}
+function render() {
+  const { level, tab, mode } = state;
+  $("mode").value = mode;
+  document.querySelectorAll(".level").forEach(button => button.classList.toggle("active", button.dataset.l === level));
+  document.querySelectorAll(".tab").forEach(button => button.classList.toggle("active", button.dataset.tab === tab));
+  $("mainTitle").textContent = { vocab:"어휘 4지선다", grammar:"문법 4지선다", reading:"독해 4지선다", wrong:"오답 노트" }[tab];
+  $("mainDesc").textContent = { vocab:"JLPT 어휘 유형을 반영한 4지선다 문제입니다.", grammar:"문법 형식 판단과 문장 구성을 연습하세요.", reading:"단문·중문·장문 독해를 연습하세요.", wrong:"틀린 문제를 선택지 순서를 바꿔 다시 풀어보세요." }[tab];
+  $("levelLabel").textContent = level + " " + ({vocab:"어휘",grammar:"문법",reading:"독해",wrong:"오답"}[tab]);
+  $("bankSummary").textContent = `${level} 문제은행: 어휘 ${bank.vocab[level].length} · 문법 ${bank.grammar[level].length} · 독해 ${bank.reading[level].length} (총 ${bank.vocab[level].length + bank.grammar[level].length + bank.reading[level].length}문제)`;
+  questions = makeQuestions(state); draw();
+}
+function draw() {
+  const current = onCurrentDay(state);
+  const { level, selected, checked, today, solved, correct, wrong } = current;
+  const answeredCount = new Set(current.solvedIds);
+  const completed = questions.filter(question => answeredCount.has(question.id)).length;
+  $("todayCount").textContent = today;
+  $("accuracy").textContent = solved ? Math.round(correct / solved * 100) + "%" : "-";
+  $("wrongCount").textContent = wrong.length;
+  $("totalSolved").textContent = solved + "문제";
+  $("totalCorrect").textContent = correct + "문제";
+  $("wrongTotal").textContent = wrong.length + "문제";
+  $("currentLevel").textContent = level;
+  $("qCount").textContent = questions.length ? (state.tab === "wrong" ? `오답 ${questions.length}개` : `푼 문제 ${completed} / ${questions.length}`) : "문제 없음";
+  $("bar").style.width = questions.length && state.tab !== "wrong" ? (completed / questions.length * 100) + "%" : "0%";
+  const root = $("quiz");
+  if (current.roundDone) {
+    const target = current.roundTarget || 10;
+    const percent = Math.round(current.roundCorrect / target * 100);
+    root.innerHTML = `<div class="round-result"><div class="muted small">${target}문제 학습 결과</div><h3>이번 회차를 완료했어요!</h3><div class="score">${current.roundCorrect} / ${target}</div><b>정답률 ${percent}%</b><p class="muted">${current.roundWrongIds.length ? `틀린 문제 ${current.roundWrongIds.length}개는 오답노트에서 다시 풀 수 있어요.` : "모든 문제를 맞혔어요. 훌륭해요!"}</p><div class="round-actions"><button class="primary" id="nextRound">다음 10문제</button><button class="secondary" id="reviewRoundWrong">오답 노트 복습</button></div></div>`;
+    $("reviewRoundWrong").disabled = !current.roundWrongIds.length;
+    $("nextRound").onclick = () => {
+      const next = { ...state, roundCount:0, roundCorrect:0, roundWrongIds:[], roundSeenIds:[], roundDone:false, selected:-1, checked:false };
+      next.roundTarget = next.tab === "wrong" ? Math.min(10, makeQuestions(next).length) : 10;
+      next.idx = randomIndex(next, state.idx);
+      if (next.idx < 0 && next.tab !== "wrong") { next.solvedIds = next.solvedIds.filter(id => !id.startsWith(`${next.level}:${next.tab}:`)); next.idx = randomIndex(next); }
+      next.optionOrder = makeOptionOrder(makeQuestions(next)[next.idx], next.idx, next.tab, next.roundCount);
+      if (next.idx < 0 && next.roundCount === 0) { next.roundDone = true; next.roundTarget = 0; }
+      save(next);
+    };
+    $("reviewRoundWrong").onclick = () => {
+      if (!current.roundWrongIds.length) return;
+      const next = { ...state, tab:"wrong", roundCount:0, roundCorrect:0, roundWrongIds:[], roundSeenIds:[], roundDone:false, selected:-1, checked:false };
+      next.roundTarget = Math.min(10, makeQuestions(next).length);
+      next.idx = randomIndex(next); next.optionOrder = makeOptionOrder(makeQuestions(next)[next.idx], next.idx, "wrong", next.roundCount); save(next);
+    };
+    return;
+  }
+  if (!questions.length) { root.innerHTML = '<div class="empty">이 등급의 문제 또는 오답이 아직 없습니다.<br><br>다른 학습 메뉴나 등급을 선택해 주세요.</div>'; return; }
+  const q = questions[state.idx];
+  if (!q) { root.innerHTML = '<div class="empty">이 등급의 미풀이 문제를 모두 풀었어요.<br>다음 회차를 시작하려면 학습 기록을 초기화하거나 다른 유형을 선택해 주세요.</div>'; return; }
+  const showRuby = ["N3","N4","N5"].includes(q.level);
+  const hideTargetRuby = q.kind === "한자 읽기" || (q.prompt || "").includes("읽기");
+  const wordHtml = q.r && showRuby && !hideTargetRuby ? `<ruby>${q.display || q.w}<rt>${q.r}</rt></ruby>` : (q.display || q.w);
+  const title = q.type === "vocab"
+    ? `<div class="small muted" style="text-align:center">${q.kind || "어휘 · 문맥 규정"}</div><div class="word">${wordHtml}</div><div class="question" style="text-align:center">${q.prompt || "다음 단어의 의미로 가장 적절한 것을 고르세요."}</div>`
+    : q.type === "grammar"
+      ? `<div class="grammarline">${renderJapanese(q.s.replace("（　）","<u>（　）</u>"), q.level)}</div><div class="question">빈칸에 들어갈 가장 적절한 표현을 고르세요.</div>`
+      : `<div class="question">다음 글을 읽고 질문에 답하세요.</div><div class="readingtext">${renderJapanese(q.text, q.level)}</div><b>${renderJapanese(q.q, q.level)}</b>`;
+  const order = validOrder(current.optionOrder) ? current.optionOrder : [0,1,2,3];
+  const correctDisplay = order.indexOf(q.c);
+  const options = order.map((originalIndex, displayIndex) => ({ text:q.a[originalIndex], originalIndex, displayIndex }));
+  const notes = checked ? `<div class="choice-notes"><b>보기 단어·표현 정리</b><ul>${options.map(item => `<li><b>${item.displayIndex+1}번 ${item.text}</b>${q.choiceMeanings?.[item.originalIndex] ? ` — ${renderJapanese(q.choiceMeanings[item.originalIndex], q.level)}` : item.originalIndex === q.c ? " — 정답" : q.type === "vocab" ? " — 뜻: " + item.text : " — 다른 선택지"}</li>`).join("")}</ul></div>` : "";
+  root.innerHTML = title + `<div class="choices">${options.map(item => `<button class="choice ${selected===item.displayIndex?"selected":""} ${checked&&item.displayIndex===correctDisplay?"correct":""} ${checked&&selected===item.displayIndex&&item.displayIndex!==correctDisplay?"wrong":""}" data-i="${item.displayIndex}" ${checked?"disabled":""}><span class="num">${item.displayIndex+1}</span><span>${renderJapanese(item.text, q.level)}</span></button>`).join("")}</div><div class="explain ${checked?"show":""}">${checked?(selected===correctDisplay?'<strong>정답입니다!</strong>':'<strong style="color:var(--red)">오답입니다. 정답: '+q.a[q.c]+'</strong>')+'<br>'+q.e:''}</div>${notes}<div class="actions">${checked?'<button class="primary" id="next">'+(current.roundCount>=(current.roundTarget||10)?'결과 보기':'다음 문제')+'</button>':'<button class="primary" id="submit" '+(selected<0?'disabled':'')+'>정답 확인</button>'}</div>`;
+  root.querySelectorAll(".choice").forEach(button => { button.onclick = () => { if (busy || checked) return; state = { ...state, selected:Number(button.dataset.i) }; draw(); }; });
+  const submit = $("submit"), next = $("next");
+  if (submit) submit.onclick = () => submitAnswer(q);
+  if (next) next.onclick = () => { if (state.roundCount >= (state.roundTarget || 10)) { save({ ...state, roundDone:true }); return; } const nextIndex = randomIndex(state, state.idx); if (nextIndex < 0) { save({ ...state, roundTarget:state.roundCount, roundDone:true }); return; } changePosition({}); };
+}
+
+document.querySelectorAll(".tab").forEach(button => {
+  button.onclick = () => changePosition({ tab: button.dataset.tab });
+});
+$("levels").innerHTML = levels.map(level => '<button class="level" data-l="' + level + '">' + level + '</button>').join("");
+document.querySelectorAll(".level").forEach(button => {
+  button.onclick = () => changePosition({ level: button.dataset.l });
+});
+$("mode").onchange = event => {
+  const mode = event.target.value;
+  event.target.value = state.mode;
+  const tab = mode === "wrong" ? "wrong" : state.tab === "wrong" ? "vocab" : state.tab;
+  changePosition({ tab });
+};
+state = restoreProfile(state);
 render();
+resumeSession();
 </script></body></html>
